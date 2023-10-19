@@ -33,6 +33,28 @@ public class PostRepository {
         return postsArray;
     }
 
+    public JsonArray getPostsByAuthor(int authorId) throws SQLException {
+        JsonArray jsonArray = new JsonArray();
+        String sql = "SELECT post.*, users.fullname AS author_name\n" +
+                "FROM post\n" +
+                "JOIN users ON post.creator_id = users.user_id\n" +
+                "WHERE post.creator_id = ?;\n";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, authorId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    JsonObject postObject = createPostJsonObject(resultSet);
+                    jsonArray.add(postObject);
+                }
+            }
+        }
+
+        return jsonArray;
+    }
+
+
     public JsonArray getPostsByCategory(String category) throws SQLException {
         JsonArray jsonArray = new JsonArray();
         String sql = "SELECT post.*, users.fullname AS author_name\n" +
@@ -53,6 +75,7 @@ public class PostRepository {
 
         return jsonArray;
     }
+
 
     public JsonObject getPostById(int postId) throws SQLException {
         String sql = "SELECT post.*, users.fullname AS author_name\n" +

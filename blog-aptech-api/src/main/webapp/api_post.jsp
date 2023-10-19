@@ -14,6 +14,7 @@
 <div style="display: flex;align-items: center;justify-content: space-around;">
     <a href="${pageContext.request.contextPath}/api/post/getAllPosts">Get All Post</a>
     <a href="${pageContext.request.contextPath}/api/post/getPostById?id=">Get Posts By ID</a>
+    <a href="${pageContext.request.contextPath}/api/post/getPostsByAuthor?author=">Get Posts By Author ID</a>
     <a href="${pageContext.request.contextPath}/api/post/getPostsByCategory?category=">Get Posts By Category</a>
 </div>
 </body>

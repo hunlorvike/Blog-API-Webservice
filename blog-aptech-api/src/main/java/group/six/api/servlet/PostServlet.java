@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 
-@WebServlet(name = "postServlet", urlPatterns = {"/api/post/getAllPosts", "/api/post/getPostsByCategory", "/api/post/getPostById"})
+@WebServlet(name = "postServlet", urlPatterns = {"/api/post/getAllPosts", "/api/post/getPostsByCategory", "/api/post/getPostById", "/api/post/getPostsByAuthor"})
 public class PostServlet extends HttpServlet {
     ConnectionProvider connectionProvider = new ConnectionProvider();
     private PostRepository postRepository;
@@ -42,6 +42,9 @@ public class PostServlet extends HttpServlet {
             case "/api/post/getPostById":
                 getPostById(req, resp);
                 break;
+            case "/api/post/getPostsByAuthor":
+                getPostsByAuthor(req, resp);
+                break;
             default:
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 resp.getWriter().write("URL không hợp lệ.");
@@ -63,6 +66,29 @@ public class PostServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("Lỗi truy vấn cơ sở dữ liệu.");
             e.printStackTrace();
+        }
+    }
+
+    private void getPostsByAuthor(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // Thiết lập tiêu đề cho CORS
+        resp.setHeader("Access-Control-Allow-Origin", "*"); // Cho phép tất cả các nguồn gốc truy cập
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE"); // Cho phép các phương thức yêu cầu
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"); // Cho phép các tiêu đề yêu cầu
+        resp.setContentType("application/json");
+        String authorIdFilter = req.getParameter("author");
+
+        if (authorIdFilter != null && !authorIdFilter.isEmpty()) {
+            try {
+                JsonArray jsonArray = postRepository.getPostsByAuthor(Integer.parseInt(authorIdFilter));
+                resp.getWriter().write(jsonArray.toString());
+            } catch (SQLException e) {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().write("Lỗi truy vấn cơ sở dữ liệu.");
+                e.printStackTrace();
+            }
+        } else {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write("Thiếu tham số 'category' trong yêu cầu.");
         }
     }
 
